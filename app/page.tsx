@@ -16,7 +16,6 @@ export interface Movie {
 
 export default function Home() {
   const [items, setItems] = useState<Movie[]>([]);
-  const [flag, setFlag] = useState(false)
 
   const addItem = (item: Movie) => {
     setItems((items) => [...items, item]);
@@ -31,23 +30,23 @@ export default function Home() {
       await response.pipeTo(
         new WritableStream({
           write(chunk) {
-              addItem(chunk);
+            addItem(chunk);
           },
           abort(reason) {
-            console.log(reason);
-          }
-        }),{
-          signal: abortController.signal
+            console.error(reason);
+          },
+        }),
+        {
+          signal: abortController.signal,
         }
       );
     });
 
-
     return () => {
       movieList.then((response) => {
         response.cancel();
-      })
-    }
+      });
+    };
   }, []);
 
   return (
@@ -55,8 +54,10 @@ export default function Home() {
       <div>
         <span className="text-4xl font-bold">Movies</span>
 
-        {/* anime item */}
-        <div className="flex flex-wrap gap-4 items-start justify-start w-full mt-8" ref={listRef} >
+        <div
+          className="flex flex-wrap gap-4 items-start justify-start w-full mt-8"
+          ref={listRef}
+        >
           {items?.map((item) => (
             <Card
               key={item.url}
